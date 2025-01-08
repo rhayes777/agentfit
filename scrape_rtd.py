@@ -23,5 +23,5 @@ print(file.text())
 summary = file.summary()
 print(file.summary())
 
-print(len(file))
+print(len(file.text()))
 print(len(summary))
