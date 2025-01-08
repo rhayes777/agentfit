@@ -57,7 +57,21 @@ normalization and sigma.
 
 
 class File:
-    def __init__(self, name: str, path: Path):
+    def __init__(
+        self,
+        name: str,
+        path: Path,
+    ):
+        """
+        A file in the documentation
+
+        Parameters
+        ----------
+        name
+            The name of the file
+        path
+            The path to the file
+        """
         self.name = name
         self.path = path
 
