@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import html2text
 import requests
 
@@ -36,8 +38,9 @@ Respond with a JSON object with the form:
 ```json
 {
     "reasoning": "Why you are deciding to complete the task now or open another page",
-    "action": "Either 'complete_task' or 'open_pages'",
+    "action": "'complete_task', 'open_pages' or 'ask_question'",
     "arguments": {
+        "question": "Ask a question to clarify the task",
         "answer": "Your answer to the task",
         "url": "The URL of the page you are opening"
     }
@@ -67,9 +70,22 @@ llm_client = LLMClient(
 )
 
 
+@dataclass
+class AnsweredQuestion:
+    question: str
+    answer: str
+
+    def __str__(self):
+        return f"""
+{self.question}
+{self.answer}
+"""
+
+
 class RTDAgent:
     def __init__(self, url: str, task: str):
         self.open_pages = [OpenPage(url)]
+        self.answered_questions = []
         self.task = task
 
     @property
@@ -85,17 +101,11 @@ The task is:
 So far you have opened the following pages:
 {self.open_pages_string}
 
+You have answered the following questions:
+{self.answered_questions}
+
 Please respond with your decision.
 """
-
-    def __call__(self, reasoning: str, action: str, arguments: dict):
-        if action == "complete_task":
-            return arguments
-        elif action == "open_pages":
-            self.open_pages.append(OpenPage(arguments["url"]))
-            return SYSTEM
-        else:
-            raise ValueError(f"Action {action} not recognized")
 
     def run(self):
         while True:
@@ -110,6 +120,17 @@ Please respond with your decision.
                 return arguments["answer"]
             if action == "open_pages":
                 self.open_pages.append(OpenPage(arguments["url"]))
+                continue
+            if action == "ask_question":
+                question = arguments["question"]
+                print(question)
+                answer = input()
+                self.answered_questions.append(
+                    AnsweredQuestion(
+                        question,
+                        answer,
+                    )
+                )
                 continue
 
             raise ValueError(f"Action {action} not recognized")
