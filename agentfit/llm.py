@@ -66,8 +66,8 @@ class LLMClient:
     def __init__(
         self,
         system: str,
-        model="anthropic.claude-3-haiku-20240307-v1:0",
-        max_tokens=4096,
+        model: str = "anthropic.claude-3-haiku-20240307-v1:0",
+        max_tokens: int = 4096,
     ):
         self.system = system
         self.model = model
