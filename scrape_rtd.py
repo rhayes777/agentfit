@@ -15,4 +15,5 @@ args = parser.parse_args()
 
 docs = Docs(args.rtd_path)
 
-print(docs.summary())
+for file in docs.rst_files[:20]:
+    print(file.summary())

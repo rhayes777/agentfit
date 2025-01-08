@@ -44,6 +44,7 @@ class LLMClient:
         if path.exists():
             return path.read_text()
         else:
+            print("Calling LLM")
             response = client.messages.create(
                 model=self.model,
                 max_tokens=self.max_tokens,

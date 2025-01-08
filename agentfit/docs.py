@@ -7,7 +7,10 @@ summary_client = LLMClient(
     system="""
 I will give you a document from ReadTheDocs.
 
-Shorten the document. Retain any code snippets in full.
+Shorten the document making the language as concise as possible whilst retaining the original meaning. 
+Retain any code snippets in full.
+
+Do not explain the answer. Give only the shortened document.
 
 For example:
 ```
