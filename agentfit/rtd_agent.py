@@ -44,9 +44,22 @@ Respond with a JSON object with the form:
 }
 ```
 
-answer should only be provided if you are completing the task now.
-Ensure the answer is correctly escaped so that the JSON can be parsed.
+"answer" should only be provided if you are completing the task now.
 url should only be provided if you are opening another page.
+
+Ensure the answer is correctly escaped so that the JSON can be parsed.
+
+If the answer is a code block it should only be code and should use \\n for new lines.
+
+For example:
+{
+    "reasoning": "I have all the information I need to complete the task",
+    "action": "complete_task",
+    "arguments": {
+        "answer": "from autofit import model as af_model\\n\\nmodel = af_model.Model()",
+    }
+}
+
 """
 
 llm_client = LLMClient(

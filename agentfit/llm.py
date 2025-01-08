@@ -43,6 +43,14 @@ def extract_json_from_text(text):
     return json_str
 
 
+def escape_quotes(json_string):
+    start = json_string.find('"answer": "') + len('"answer": "')
+    end = json_string.rfind('"\n    }')
+    code_snippet = json_string[start:end]
+    escaped_code = code_snippet.replace('"', '\\"').replace("\n", "\\n")
+    return json_string[:start] + escaped_code + json_string[end:]
+
+
 client = AnthropicBedrock(
     aws_region="eu-west-2",
 )
@@ -92,4 +100,4 @@ class LLMClient:
             return text
 
     def json(self, content: str):
-        return json.loads(extract_json_from_text(self(content)))
+        return json.loads(escape_quotes(extract_json_from_text(self(content))))
