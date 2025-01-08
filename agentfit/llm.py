@@ -1,7 +1,14 @@
 import hashlib
 
-from anthropic import AnthropicBedrock
+from anthropic import AnthropicBedrock, RateLimitError
 from pathlib import Path
+
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
 
 client = AnthropicBedrock(
     aws_region="eu-west-2",
@@ -25,6 +32,11 @@ class LLMClient:
         self.model = model
         self.max_tokens = max_tokens
 
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=1, max=10),
+        retry=retry_if_exception_type(RateLimitError),
+    )
     def __call__(self, content: str):
         md5 = hashlib.md5(content.encode()).hexdigest()
         path = cache_dir / f"{md5}.txt"
