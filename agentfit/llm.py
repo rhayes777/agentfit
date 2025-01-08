@@ -1,14 +1,46 @@
 import hashlib
 
 from anthropic import AnthropicBedrock, RateLimitError
-from pathlib import Path
-
 from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
     retry_if_exception_type,
 )
+from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def find_json_bounds(text):
+    start_index = min(
+        (text.find("{") if "{" in text else float("inf")),
+        (text.find("[") if "[" in text else float("inf")),
+    )
+    if start_index == float("inf"):
+        raise ValueError("No JSON object or array found in the text")
+
+    stack = []
+    for i, char in enumerate(text[start_index:], start=start_index):
+        if char in "{[":
+            stack.append(char)
+        elif char in "}]":
+            if not stack:
+                raise ValueError("Unbalanced JSON structure")
+            last_open = stack.pop()
+            if char == "}" and last_open != "{" or char == "]" and last_open != "[":
+                raise ValueError("Mismatched JSON structure")
+            if not stack:
+                return start_index, i + 1
+    raise ValueError("Incomplete JSON structure")
+
+
+def extract_json_from_text(text):
+    start, end = find_json_bounds(text)
+    json_str = text[start:end]
+    return json_str
+
 
 client = AnthropicBedrock(
     aws_region="eu-west-2",
@@ -38,7 +70,9 @@ class LLMClient:
         retry=retry_if_exception_type(RateLimitError),
     )
     def __call__(self, content: str):
-        md5 = hashlib.md5(content.encode()).hexdigest()
+        md5 = hashlib.md5(
+            (self.system + self.model + content + str(self.max_tokens)).encode()
+        ).hexdigest()
         path = cache_dir / f"{md5}.txt"
 
         if path.exists():
@@ -55,3 +89,6 @@ class LLMClient:
             text = content.text
             path.write_text(text)
             return text
+
+    def json(self, content: str):
+        return extract_json_from_text(self(content))
