@@ -1,7 +1,5 @@
 from argparse import ArgumentParser
 
-from anthropic import AnthropicBedrock
-
 from pathlib import Path
 
 from agentfit.docs import Docs
