@@ -45,6 +45,7 @@ Respond with a JSON object with the form:
 ```
 
 answer should only be provided if you are completing the task now.
+Ensure the answer is correctly escaped so that the JSON can be parsed.
 url should only be provided if you are opening another page.
 """
 

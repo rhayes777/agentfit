@@ -1,4 +1,5 @@
 import hashlib
+import json
 
 from anthropic import AnthropicBedrock, RateLimitError
 from tenacity import (
@@ -91,4 +92,4 @@ class LLMClient:
             return text
 
     def json(self, content: str):
-        return extract_json_from_text(self(content))
+        return json.loads(extract_json_from_text(self(content)))
