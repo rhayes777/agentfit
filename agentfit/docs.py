@@ -89,3 +89,12 @@ class Docs:
         return "\n\n".join(
             [f"{file.name}\n\n{file.summary()}" for file in self.rst_files]
         )
+
+    def __getitem__(self, item):
+        path = self.path / item
+        if path.is_file():
+            return File(
+                item,
+                path,
+            )
+        return Docs(self.path / item)
